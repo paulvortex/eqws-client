@@ -12,7 +12,7 @@
     "sha-1": "^0.1.1"
   },
   "scripts": {
-    "install": "babel src -o dist/eqws-client.js",
+    "install": "babel src -o dist/eqws-client.js"
   },
   "keywords": [],
   "author": "Andrew Mensky",
