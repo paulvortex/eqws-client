@@ -2,7 +2,7 @@
   "name": "eqws-client",
   "version": "0.1.0",
   "description": "",
-  "main": "./dist/eqws-client.js",
+  "main": "./dist/index.js",
   "devDependencies": {
     "babel-preset-es2015": "^6.18.0",
     "babel-cli": "^6.0.0"
@@ -12,7 +12,7 @@
     "sha-1": "^0.1.1"
   },
   "scripts": {
-    "build": "babel src -o dist/eqws-client.js"
+    "install": "babel src --out-dir dist"
   },
   "keywords": [],
   "author": "Andrew Mensky",
