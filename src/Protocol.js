@@ -49,7 +49,7 @@ class Protocol {
 			this.rootScope.$emit('eqApi.error', err);
 			promise.reject(err);
 		} else {
-			promise.resolve(data.response);
+			promise.resolve(data.response, data);
 		}
 	}
 
