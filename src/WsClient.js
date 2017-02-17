@@ -15,7 +15,7 @@ class WsClient {
 		this.proto  = new Protocol('ws.client');
 		this.q      = $require('$q');
 		this.pson   = new PSON.StaticPair([]);
-		this.binary = true;
+		this.binary = false;
 	}
 
 	wsInit(path) {

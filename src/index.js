@@ -37,7 +37,7 @@ function factory($http, $q, $state, $localStorage, eqApiConfig) {
 		return protocol.call.apply(protocol, arguments);
 	};
 
-	ws.binary = !!opts.pson;
+	ws.binary = !!opts.binary;
 	return i;
 }
 
