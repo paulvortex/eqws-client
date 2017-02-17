@@ -17,5 +17,8 @@
   },
   "keywords": [],
   "author": "Andrew Mensky",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "pson": "^2.0.0"
+  }
 }

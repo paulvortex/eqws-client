@@ -29,18 +29,17 @@ class Protocol {
 
 		// Cache fetures
 		if (data.cacheSign) {
-			let key = ['cache', api.name, data.inputSign].join('.');
+			let hashKey = sha1([api.name, data.inputSign].join('.'));
 
 			if (data.response) {
-				console.debug(api.name, 'stored in cache', data.inputSign);
-
-				_set(this.localStorage, key,  {
+				console.debug(api.name, 'stored in cache:', hashKey);
+				_set(this.localStorage, `cache.${hashKey}`, {
 					v: data.response,
 					h: data.cacheSign
 				});
 			} else {
-				console.debug(api.name, 'provide from cache');
-				data.response = _get(this.localStorage, key + '.v');
+				console.debug(api.name, 'provide from cache:', hashKey);
+				data.response = _get(this.localStorage, `cache.${hashKey}.v`);
 			}
 		}
 
@@ -63,10 +62,10 @@ class Protocol {
 		if (data.args && data.args.__cache) {
 			delete data.args.__cache;
 
-			let argsSign = sha1(JSON.stringify(data.args));
-			let key      = ['cache', data.method, argsSign, 'h'].join('.');
+			let inputSign = sha1(JSON.stringify(data.args));
+			let hashKey   = sha1([data.method, inputSign].join('.'));
 
-			data.args.__cache = _get(this.localStorage, key);
+			data.args.__cache = _get(this.localStorage, `cache.${hashKey}.h`);
 		}
 	}
 

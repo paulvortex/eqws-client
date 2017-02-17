@@ -1,5 +1,9 @@
 'use strict';
 
+import _isObject from 'lodash/isObject';
+
+import PSON from 'pson/dist/PSON.js';
+
 import ApiError from './ApiError';
 import Protocol from './Protocol';
 import $require from './ng-require';
@@ -10,10 +14,13 @@ class WsClient {
 		this.stack  = {};
 		this.proto  = new Protocol('ws.client');
 		this.q      = $require('$q');
+		this.pson   = new PSON.StaticPair([]);
+		this.binary = true;
 	}
 
 	wsInit(path) {
 		this.socket = new WebSocket(path);
+		this.socket.binaryType = 'arraybuffer';
 		this.socket.onmessage = this.controller.bind(this);
 		this.socket.onclose = () => {
 			setTimeout(() => {
@@ -24,7 +31,7 @@ class WsClient {
 	}
 
 	controller(message) {
-		let data = this.parsePaket(message.data);
+		let data = this.decode(message.data);
 
 		if (data.event) {
 			console.debug('ws:event', data.event);
@@ -64,8 +71,8 @@ class WsClient {
 	}
 
 	send(data) {
-		if (typeof data === 'object') {
-			data = JSON.stringify(data);
+		if (typeof data === 'object' && !data.byteLength) {
+			data = this.encode(data);
 		}
 
 		if (this.socket.readyState === 1) {
@@ -79,9 +86,20 @@ class WsClient {
 		return Math.random().toString(16).slice(2);
 	}
 
-	parsePaket(message) {
-		let data = JSON.parse(message);
-		return data;
+	encode(data) {
+		if (this.binary) {
+			return this.pson.encode(data).buffer;
+		} else {
+			return JSON.stringify(data);
+		}
+	}
+
+	decode(data) {
+		if (typeof data !== 'string') {
+			return this.pson.decode(data);
+		} else {
+			return JSON.parse(data);
+		}
 	}
 }
 
