@@ -1,8 +1,4 @@
-'use strict';
-
-import _isObject from 'lodash/isObject';
-
-import PSON from 'pson/dist/PSON.js';
+import * as msgpack from './msgpack';
 
 import ApiError from './ApiError';
 import Protocol from './Protocol';
@@ -14,7 +10,6 @@ class WsClient {
 		this.stack  = {};
 		this.proto  = new Protocol('ws.client');
 		this.q      = $require('$q');
-		this.pson   = new PSON.StaticPair([]);
 		this.binary = false;
 	}
 
@@ -57,6 +52,8 @@ class WsClient {
 	call(method, args) {
 		let deferred = this.q.defer();
 
+		removeEmpty(args);
+
 		let uid = this.generateId();
 		let sid = ['eq', uid].join(':');
 		let data = {method, args, sid};
@@ -70,15 +67,15 @@ class WsClient {
 		return deferred.promise;
 	}
 
-	send(data) {
-		if (typeof data === 'object' && !data.byteLength) {
+	send(data, ecnode = true) {
+		if (ecnode) {
 			data = this.encode(data);
 		}
 
 		if (this.socket.readyState === 1) {
-			this.socket.send(data);
+			this.socket.send(data, false);
 		} else {
-			setTimeout(this.send.bind(this, data), 5);
+			setTimeout(this.send.bind(this, data, false), 5);
 		}
 	}
 
@@ -88,7 +85,7 @@ class WsClient {
 
 	encode(data) {
 		if (this.binary) {
-			return this.pson.encode(data).buffer;
+			return msgpack.encode(data);
 		} else {
 			return JSON.stringify(data);
 		}
@@ -96,11 +93,27 @@ class WsClient {
 
 	decode(data) {
 		if (typeof data !== 'string') {
-			return this.pson.decode(data);
+			return msgpack.decode(data);
 		} else {
 			return JSON.parse(data);
 		}
 	}
 }
+
+function removeEmpty(obj) {
+	for (let key in obj) {
+		if (obj.hasOwnProperty(key)) {
+			let val = obj[key];
+
+			if (val && typeof val === 'object') {
+				removeEmpty(val);
+			} else if (val === undefined) {
+				delete obj[key];
+			}
+		}
+	}
+
+	return obj;
+};
 
 export default WsClient;

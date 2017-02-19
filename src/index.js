@@ -38,6 +38,11 @@ function factory($http, $q, $state, $localStorage, eqApiConfig) {
 	};
 
 	ws.binary = !!opts.binary;
+
+	if (ws.binary) {
+		console.debug('ws: binary enabled');
+	}
+
 	return i;
 }
 

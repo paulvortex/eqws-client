@@ -19,6 +19,6 @@
   "author": "Andrew Mensky",
   "license": "MIT",
   "dependencies": {
-    "pson": "^2.0.0"
+    "msgpack-lite": "^0.1.26"
   }
 }
