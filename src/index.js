@@ -1,5 +1,5 @@
-import WsClient from './WsClient';
-import HttpClient from './HttpClient';
+import WsClient from './client/WsClient';
+import HttpClient from './client/HttpClient';
 
 angular
 	.module('eq.api', ['ngStorage'])
@@ -9,8 +9,13 @@ angular
 function provider() {
 	return {
 		options: {
-			httpUrl: '/',
-			wsUrl: '/',
+			http: {
+				url: '/'
+			},
+			ws: {
+				url: '/',
+				format: 'json'
+			},
 			defaultProtocol: 'ws'
 		},
 		$get: function() {
@@ -19,33 +24,47 @@ function provider() {
 	};
 }
 
-function factory($http, $q, $state, $localStorage, eqApiConfig) {
+function factory($http, $q, $state, $localStorage, $rootScope, eqApiConfig) {
 	// Get options
-	let opts = eqApiConfig.options;
+	let options = eqApiConfig.options;
 
-	// Initialize ws interface
-	let ws = new WsClient(opts.wsUrl);
+	// Define token getter
+	const tokenInterface = {
+		get: () => $localStorage.token,
+		set: (value) => $localStorage.token = value
+	}
 
-	// Initialize http interface
-	let http = new HttpClient(opts.httpUrl);
+	options.ws.token = tokenInterface;
+	options.http.token = tokenInterface;
+
+	// Initialize clients
+	let ws   = new WsClient(options.ws);
+	let http = new HttpClient(options.http);
 
 	// Interface
 	let i = {ws, http};
 
 	i.call = function() {
-		let protocol = i[opts.defaultProtocol];
+		let protocol = i[options.defaultProtocol];
 		return protocol.call.apply(protocol, arguments);
 	};
 
-	ws.binary = !!opts.binary;
+	// Broadcast events
+	ws.use('onEvent', (eventName, args) => {
+		console.debug('eq.event', eventName, args);
+		$rootScope.$emit(`eq.${eventName}`, args);
+	});
 
-	if (ws.binary) {
-		console.debug('ws: binary enabled');
+	ws.use('onError', errorHandler);
+	http.use('onError', errorHandler);
+
+	function errorHandler(err) {
+		$rootScope.emit(`eq.error`, error);
 	}
 
 	return i;
 }
 
-factory.$inject = ['$http', '$q', '$state', '$localStorage', 'eqApiConfig'];
+factory.$inject = ['$http', '$q', '$state', '$localStorage', '$rootScope', 'eqApiConfig'];
 
 export {WsClient, HttpClient};
