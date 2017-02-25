@@ -37,6 +37,22 @@ class Protocol {
 		}
 	}
 
+	removeEmpty(obj) {
+		for (let key in obj) {
+			if (obj.hasOwnProperty(key)) {
+				let val = obj[key];
+
+				if (val && typeof val === 'object') {
+					this.removeEmpty(val);
+				} else if (val === undefined) {
+					delete obj[key];
+				}
+			}
+		}
+
+		return obj;
+	}
+
 	_onResponse(response) {
 		const token = response.token;
 
@@ -56,6 +72,7 @@ class Protocol {
 	}
 
 	_onSend(data) {
+		this.removeEmpty(data.args);
 		console.log(`${this.name}:req`, data.method, data.args);
 	}
 

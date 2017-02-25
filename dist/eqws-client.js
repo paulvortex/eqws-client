@@ -120,14 +120,14 @@
 		// Broadcast events
 		ws.use('onEvent', function (eventName, args) {
 			console.debug('eq.event', eventName, args);
-			$rootScope.$emit('eq.' + eventName, args);
+			$rootScope.$broadcast('eqApi.' + eventName, args);
 		});
 
 		ws.use('onError', errorHandler);
 		http.use('onError', errorHandler);
 
 		function errorHandler(err) {
-			$rootScope.emit('eq.error', error);
+			$rootScope.$broadcast('eq.error', error);
 		}
 
 		return i;
@@ -318,6 +318,8 @@
 		value: true
 	});
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _get2 = __webpack_require__(4);
@@ -380,6 +382,23 @@
 				}
 			}
 		}, {
+			key: 'removeEmpty',
+			value: function removeEmpty(obj) {
+				for (var key in obj) {
+					if (obj.hasOwnProperty(key)) {
+						var val = obj[key];
+
+						if (val && (typeof val === 'undefined' ? 'undefined' : _typeof(val)) === 'object') {
+							this.removeEmpty(val);
+						} else if (val === undefined) {
+							delete obj[key];
+						}
+					}
+				}
+
+				return obj;
+			}
+		}, {
 			key: '_onResponse',
 			value: function _onResponse(response) {
 				var token = response.token;
@@ -402,6 +421,7 @@
 		}, {
 			key: '_onSend',
 			value: function _onSend(data) {
+				this.removeEmpty(data.args);
 				console.log(this.name + ':req', data.method, data.args);
 			}
 		}, {

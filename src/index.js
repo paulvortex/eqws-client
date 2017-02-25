@@ -52,14 +52,14 @@ function factory($http, $q, $state, $localStorage, $rootScope, eqApiConfig) {
 	// Broadcast events
 	ws.use('onEvent', (eventName, args) => {
 		console.debug('eq.event', eventName, args);
-		$rootScope.$emit(`eq.${eventName}`, args);
+		$rootScope.$broadcast(`eqApi.${eventName}`, args);
 	});
 
 	ws.use('onError', errorHandler);
 	http.use('onError', errorHandler);
 
 	function errorHandler(err) {
-		$rootScope.emit(`eq.error`, error);
+		$rootScope.$broadcast(`eq.error`, error);
 	}
 
 	return i;
