@@ -377,8 +377,10 @@
 					this._onError(err);
 					request.reject(err);
 				} else {
+					var result = typeof response.response !== 'undefined' ? response.response : response;
+
 					this._onResponse(response);
-					request.resolve(response.response || response, response);
+					request.resolve(result, response);
 				}
 			}
 		}, {
