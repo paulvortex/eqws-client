@@ -12,7 +12,7 @@ class HttpClient {
 		this._q       = $require('$q');
 		this._proto   = new Protocol(opts, 'http.client');
 
-		this._proto._onError = this._onError.bind(this);
+		this._proto._onError = (err) => this._onError(err);
 	}
 
 	/**

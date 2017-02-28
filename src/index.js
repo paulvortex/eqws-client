@@ -59,7 +59,7 @@ function factory($http, $q, $state, $localStorage, $rootScope, eqApiConfig) {
 	http.use('onError', errorHandler);
 
 	function errorHandler(err) {
-		$rootScope.$broadcast(`eq.error`, error);
+		$rootScope.$broadcast(`eqApi.error`, err);
 	}
 
 	return i;

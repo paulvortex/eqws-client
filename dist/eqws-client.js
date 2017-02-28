@@ -127,7 +127,7 @@
 		http.use('onError', errorHandler);
 
 		function errorHandler(err) {
-			$rootScope.$broadcast('eq.error', error);
+			$rootScope.$broadcast('eqApi.error', err);
 		}
 
 		return i;
@@ -168,6 +168,8 @@
 
 	var WsClient = function () {
 		function WsClient() {
+			var _this = this;
+
 			var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 			_classCallCheck(this, WsClient);
@@ -182,7 +184,9 @@
 			this._parser = _Parser2.default[opts.format] || _Parser2.default.json;
 			this._q = (0, _ngRequire2.default)('$q');
 
-			this._proto._onError = this._onError.bind(this);
+			this._proto._onError = function (err) {
+				return _this._onError(err);
+			};
 			this.connect();
 		}
 
@@ -279,11 +283,11 @@
 		}, {
 			key: '_onClose',
 			value: function _onClose() {
-				var _this = this;
+				var _this2 = this;
 
 				console.warn('socket connection close: reconnect');
 				setTimeout(function () {
-					return _this.connect();
+					return _this2.connect();
 				}, 1000);
 			}
 		}, {
@@ -6952,6 +6956,8 @@
 	  * @param  {String} serviceUrl Back-end service URL
 	  */
 		function HttpClient() {
+			var _this = this;
+
 			var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 			_classCallCheck(this, HttpClient);
@@ -6961,7 +6967,9 @@
 			this._q = (0, _ngRequire2.default)('$q');
 			this._proto = new _Protocol2.default(opts, 'http.client');
 
-			this._proto._onError = this._onError.bind(this);
+			this._proto._onError = function (err) {
+				return _this._onError(err);
+			};
 		}
 
 		/**
