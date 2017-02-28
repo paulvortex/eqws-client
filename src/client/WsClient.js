@@ -18,6 +18,16 @@ class WsClient {
 		this.connect();
 	}
 
+	reconnect() {
+		if (this._socket) {
+			this._socket.onclose = null;
+			this._socket.close();
+			this.connect();
+		} else {
+			this._socket();
+		}
+	}
+
 	connect() {
 		const protocol = this._proto;
 		const url = this._options.url + '?token=' + protocol.getToken();

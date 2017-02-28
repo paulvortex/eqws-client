@@ -191,6 +191,17 @@
 		}
 
 		_createClass(WsClient, [{
+			key: 'reconnect',
+			value: function reconnect() {
+				if (this._socket) {
+					this._socket.onclose = null;
+					this._socket.close();
+					this.connect();
+				} else {
+					this._socket();
+				}
+			}
+		}, {
 			key: 'connect',
 			value: function connect() {
 				var protocol = this._proto;
