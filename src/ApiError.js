@@ -42,6 +42,10 @@ class ApiError {
 		this.message = msg || errName.toString();
 	}
 
+	toString() {
+		return this.message;
+	}
+
 	/**
 	 * Build simple object
 	 * @return {Object} Contain code and message

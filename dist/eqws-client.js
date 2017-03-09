@@ -2086,13 +2086,18 @@
 			this.message = msg || errName.toString();
 		}
 
-		/**
-	  * Build simple object
-	  * @return {Object} Contain code and message
-	  */
-
-
 		_createClass(ApiError, [{
+			key: 'toString',
+			value: function toString() {
+				return this.message;
+			}
+
+			/**
+	   * Build simple object
+	   * @return {Object} Contain code and message
+	   */
+
+		}, {
 			key: 'toJSON',
 			value: function toJSON() {
 				return {
