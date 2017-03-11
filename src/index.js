@@ -37,6 +37,8 @@ function factory($http, $q, $state, $localStorage, $rootScope, eqApiConfig) {
 	options.ws.token = tokenInterface;
 	options.http.token = tokenInterface;
 
+	if (options.token) tokenInterface.set(options.token);
+
 	// Initialize clients
 	let ws   = new WsClient(options.ws);
 	let http = new HttpClient(options.http);

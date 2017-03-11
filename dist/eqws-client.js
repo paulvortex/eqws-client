@@ -105,6 +105,8 @@
 		options.ws.token = tokenInterface;
 		options.http.token = tokenInterface;
 
+		if (options.token) tokenInterface.set(options.token);
+
 		// Initialize clients
 		var ws = new _WsClient2.default(options.ws);
 		var http = new _HttpClient2.default(options.http);
@@ -6999,14 +7001,18 @@
 		_createClass(HttpClient, [{
 			key: 'call',
 			value: function call(method, args) {
+				var _this2 = this;
+
 				var deferred = this._q.defer();
 				var url = this._options.url + method;
-				var token = this._options.tokenGetter();
+				var token = this._proto.getToken();
 
 				this._proto._onSend({ method: method, args: args });
 
 				this._http.defaults.headers.common['X-Token'] = token;
-				this._http.post(url, args).success(this._proto.handler.bind(this._proto, deferred)).error(this._proto.handler.bind(this._proto, deferred));
+				this._http.post(url, args).then(function (res) {
+					return _this2._proto.handler(deferred, res.data);
+				}, this._proto.handler.bind(this._proto, deferred));
 
 				return deferred.promise;
 			}
