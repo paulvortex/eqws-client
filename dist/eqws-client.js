@@ -168,6 +168,8 @@
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+	var CONNECTION_TIMEOUT = 1000;
+
 	var WsClient = function () {
 		function WsClient() {
 			var _this = this;
@@ -185,6 +187,7 @@
 			this._socket = null;
 			this._parser = _Parser2.default[opts.format] || _Parser2.default.json;
 			this._q = (0, _ngRequire2.default)('$q');
+			this._reconnectionTimeout = CONNECTION_TIMEOUT;
 
 			this._proto._onError = function (err) {
 				return _this._onError(err);
@@ -213,6 +216,7 @@
 				this._socket.binaryType = 'arraybuffer';
 				this._socket.onmessage = this._onMessage.bind(this);
 				this._socket.onclose = this._onClose.bind(this);
+				this._socket.onopen = this._onOpen.bind(this);
 			}
 		}, {
 			key: 'getRequest',
@@ -298,10 +302,12 @@
 			value: function _onClose() {
 				var _this2 = this;
 
-				console.warn('socket connection close: reconnect');
+				console.warn('socket connection close: reconnect', this._reconnectionTimeout);
 				setTimeout(function () {
 					return _this2.connect();
-				}, 1000);
+				}, this._reconnectionTimeout);
+
+				this._reconnectionTimeout += CONNECTION_TIMEOUT;
 			}
 		}, {
 			key: '_pullRequest',
@@ -317,6 +323,11 @@
 			key: '_onError',
 			value: function _onError(err) {
 				console.error(this._proto.name, err);
+			}
+		}, {
+			key: '_onOpen',
+			value: function _onOpen() {
+				this._reconnectionTimeout = CONNECTION_TIMEOUT;
 			}
 		}]);
 

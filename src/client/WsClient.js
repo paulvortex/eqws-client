@@ -2,6 +2,8 @@ import Protocol from './Protocol';
 import Parser from '../Parser';
 import $require from '../ng-require';
 
+const CONNECTION_TIMEOUT = 1000;
+
 class WsClient {
 	constructor(opts = {}) {
 		if (!opts.format) opts.format = 'json';
@@ -13,6 +15,7 @@ class WsClient {
 		this._socket = null;
 		this._parser = Parser[opts.format] || Parser.json;
 		this._q = $require('$q');
+		this._reconnectionTimeout = CONNECTION_TIMEOUT;
 
 		this._proto._onError = (err) => this._onError(err);
 		this.connect();
@@ -36,6 +39,7 @@ class WsClient {
 		this._socket.binaryType = 'arraybuffer';
 		this._socket.onmessage = this._onMessage.bind(this);
 		this._socket.onclose = this._onClose.bind(this);
+		this._socket.onopen = this._onOpen.bind(this);
 	}
 
 	getRequest(sid) {
@@ -111,8 +115,10 @@ class WsClient {
 	}
 
 	_onClose() {
-		console.warn('socket connection close: reconnect');
-		setTimeout(() => this.connect(), 1000);
+		console.warn('socket connection close: reconnect', this._reconnectionTimeout);
+		setTimeout(() => this.connect(), this._reconnectionTimeout);
+
+		this._reconnectionTimeout += CONNECTION_TIMEOUT;
 	}
 
 	_pullRequest(sid) {
@@ -125,6 +131,10 @@ class WsClient {
 
 	_onError(err) {
 		console.error(this._proto.name, err);
+	}
+
+	_onOpen() {
+		this._reconnectionTimeout = CONNECTION_TIMEOUT;
 	}
 }
 
