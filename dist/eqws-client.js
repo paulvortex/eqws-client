@@ -169,6 +169,7 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var CONNECTION_TIMEOUT = 1000;
+	var WS_ENGINE = WebSocket || MozWebSocket;
 
 	var WsClient = function () {
 		function WsClient() {
@@ -212,7 +213,7 @@
 				var protocol = this._proto;
 				var url = this._options.url + '?token=' + protocol.getToken();
 
-				this._socket = new WebSocket(url, this._options.format);
+				this._socket = new WS_ENGINE(url, this._options.format);
 				this._socket.binaryType = 'arraybuffer';
 				this._socket.onmessage = this._onMessage.bind(this);
 				this._socket.onclose = this._onClose.bind(this);
@@ -7012,18 +7013,20 @@
 		_createClass(HttpClient, [{
 			key: 'call',
 			value: function call(method, args) {
-				var _this2 = this;
-
 				var deferred = this._q.defer();
 				var url = this._options.url + method;
 				var token = this._proto.getToken();
+				var data = JSON.stringify(args);
+
+				var handler = this._proto.handler.bind(this._proto);
 
 				this._proto._onSend({ method: method, args: args });
+				this._http.defaults.headers.post['X-Token'] = token;
+				this._http.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
 
-				this._http.defaults.headers.common['X-Token'] = token;
-				this._http.post(url, args).then(function (res) {
-					return _this2._proto.handler(deferred, res.data);
-				}, this._proto.handler.bind(this._proto, deferred));
+				this._http.post(url, data).then(function (res) {
+					return handler(deferred, res.data);
+				}, handler);
 
 				return deferred.promise;
 			}

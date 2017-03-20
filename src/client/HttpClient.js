@@ -25,14 +25,17 @@ class HttpClient {
 		const deferred = this._q.defer();
 		const url      = this._options.url + method;
 		const token    = this._proto.getToken();
+		const data     = JSON.stringify(args);
+
+		const handler = this._proto.handler.bind(this._proto);
 
 		this._proto._onSend({method: method, args});
+		this._http.defaults.headers.post['X-Token'] = token;
+		this._http.defaults.headers.post['Content-Type'] = 'application/json; charset=utf-8';
 
-		this._http.defaults.headers.common['X-Token'] = token;
 		this._http
-			.post(url, args)
-			.then(res => this._proto.handler(deferred, res.data),
-				this._proto.handler.bind(this._proto, deferred));
+			.post(url, data)
+			.then(res => handler(deferred, res.data), handler);
 
 		return deferred.promise;
 	}
