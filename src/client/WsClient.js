@@ -3,6 +3,7 @@ import Parser from '../Parser';
 import $require from '../ng-require';
 
 const CONNECTION_TIMEOUT = 1000;
+const WS_ENGINE = WebSocket || MozWebSocket;
 
 class WsClient {
 	constructor(opts = {}) {
@@ -35,7 +36,7 @@ class WsClient {
 		const protocol = this._proto;
 		const url = this._options.url + '?token=' + protocol.getToken();
 
-		this._socket = new WebSocket(url, this._options.format);
+		this._socket = new WS_ENGINE(url, this._options.format);
 		this._socket.binaryType = 'arraybuffer';
 		this._socket.onmessage = this._onMessage.bind(this);
 		this._socket.onclose = this._onClose.bind(this);
