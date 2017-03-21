@@ -35,7 +35,14 @@ class HttpClient {
 
 		this._http
 			.post(url, data)
-			.then(res => handler(deferred, res.data), handler);
+			.then(res => handler(deferred, res.data), (err) => {
+				handler(deferred, {
+					error_code: -1,
+					error_msg: `HttpError: ${err.statusText} (${err.status})`,
+					ms: -1,
+					api: {name: method}
+				});
+			});
 
 		return deferred.promise;
 	}

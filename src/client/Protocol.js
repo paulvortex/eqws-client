@@ -26,7 +26,7 @@ class Protocol {
 
 		console.log(this.name + ':res', api.name, response.ms + 'ms', response);
 
-		if (response.error_code) {
+		if (response.error_code !== undefined && response.error_code !== null) {
 			let err = this._parseError(response);
 
 			this._onError(err);

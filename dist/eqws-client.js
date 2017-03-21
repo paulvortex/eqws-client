@@ -173,8 +173,6 @@
 
 	var WsClient = function () {
 		function WsClient() {
-			var _this = this;
-
 			var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 			_classCallCheck(this, WsClient);
@@ -190,9 +188,7 @@
 			this._q = (0, _ngRequire2.default)('$q');
 			this._reconnectionTimeout = CONNECTION_TIMEOUT;
 
-			this._proto._onError = function (err) {
-				return _this._onError(err);
-			};
+			this._proto._onError = this._onError.bind(this);
 			this.connect();
 		}
 
@@ -301,11 +297,11 @@
 		}, {
 			key: '_onClose',
 			value: function _onClose() {
-				var _this2 = this;
+				var _this = this;
 
 				console.warn('socket connection close: reconnect', this._reconnectionTimeout);
 				setTimeout(function () {
-					return _this2.connect();
+					return _this.connect();
 				}, this._reconnectionTimeout);
 
 				this._reconnectionTimeout += CONNECTION_TIMEOUT;
@@ -400,7 +396,7 @@
 
 				console.log(this.name + ':res', api.name, response.ms + 'ms', response);
 
-				if (response.error_code) {
+				if (response.error_code !== undefined && response.error_code !== null) {
 					var err = this._parseError(response);
 
 					this._onError(err);
@@ -7026,7 +7022,14 @@
 
 				this._http.post(url, data).then(function (res) {
 					return handler(deferred, res.data);
-				}, handler);
+				}, function (err) {
+					handler(deferred, {
+						error_code: -1,
+						error_msg: 'HttpError: ' + err.statusText + ' (' + err.status + ')',
+						ms: -1,
+						api: { name: method }
+					});
+				});
 
 				return deferred.promise;
 			}
