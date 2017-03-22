@@ -10,6 +10,10 @@ class WsClient {
 		if (!opts.format) opts.format = 'json';
 		if (!opts.url) opts.url = '/';
 
+		if (opts.url.charAt(0) === '/') {
+			opts.url = 'ws://' + window.location.hostname + opts.url;
+		}
+
 		this._options = opts;
 		this._requests  = {};
 		this._proto  = new Protocol(opts, 'ws.client');
