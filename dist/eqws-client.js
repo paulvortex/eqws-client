@@ -173,12 +173,18 @@
 
 	var WsClient = function () {
 		function WsClient() {
+			var _this = this;
+
 			var opts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
 			_classCallCheck(this, WsClient);
 
 			if (!opts.format) opts.format = 'json';
 			if (!opts.url) opts.url = '/';
+
+			if (opts.url.charAt(0) === '/') {
+				opts.url = 'ws://' + window.location.hostname + opts.url;
+			}
 
 			this._options = opts;
 			this._requests = {};
@@ -188,7 +194,9 @@
 			this._q = (0, _ngRequire2.default)('$q');
 			this._reconnectionTimeout = CONNECTION_TIMEOUT;
 
-			this._proto._onError = this._onError.bind(this);
+			this._proto._onError = function (err) {
+				return _this._onError(err);
+			};
 			this.connect();
 		}
 
@@ -297,11 +305,11 @@
 		}, {
 			key: '_onClose',
 			value: function _onClose() {
-				var _this = this;
+				var _this2 = this;
 
 				console.warn('socket connection close: reconnect', this._reconnectionTimeout);
 				setTimeout(function () {
-					return _this.connect();
+					return _this2.connect();
 				}, this._reconnectionTimeout);
 
 				this._reconnectionTimeout += CONNECTION_TIMEOUT;
