@@ -10,7 +10,9 @@ class WsClient {
 		if (!opts.format) opts.format = 'json';
 		if (!opts.url) opts.url = '/';
 
-		if (opts.url.charAt(0) === '/') {
+		let f = opts.url.charAt(0);
+
+		if (f === '/' || f === ':') {
 			opts.url = 'ws://' + window.location.hostname + opts.url;
 		}
 
