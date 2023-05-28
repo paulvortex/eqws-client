@@ -8,7 +8,7 @@ class Protocol {
 
 		this._options = opts;
 		this.name = name;
-		console.log(name + ': intialized');
+		//console.log(name + ': intialized');
 	}
 
 	getToken() {
@@ -24,7 +24,7 @@ class Protocol {
 			name: 'unknown'
 		});
 
-		console.log(this.name + ':res', api.name, response.ms + 'ms', response);
+		//console.log(this.name + ':res', api.name, response.ms + 'ms', response);
 
 		if (response.error_code !== undefined && response.error_code !== null) {
 			let err = this._parseError(response);
@@ -75,7 +75,7 @@ class Protocol {
 
 	_onSend(data) {
 		this.removeEmpty(data.args);
-		console.log(`${this.name}:req`, data.method, data.args);
+		//console.log(`${this.name}:req`, data.method, data.args);
 	}
 
 	_onError() {}
